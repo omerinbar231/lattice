@@ -1,12 +1,20 @@
 ![Lattice](assets/lattice-banner.png)
 
-[Website](https://www.latticearm.com) | [License](LICENSE)
+# Lattice Arm: Open Source Modular Detachable Low Cost Robotic Arm
 
-## Open Source Modular Detachable Low Cost Robotic Arm
+[Website](https://www.latticearm.com) | [License](LICENSE)
 
 ![Lattice overview](assets/lattice-overview.png)
 
-<!-- Keep new README sections above Authors and Citation. -->
+Lattice Arm is an open-source, low-cost robotic manipulator designed to be modular and detachable. The hardware and documentation in this repo are meant to help makers and researchers assemble, customize, and experiment with an affordable arm without proprietary tooling.
+
+## News
+
+- **2026-06-04** — Initial public release.
+
+## BOM
+
+## Instruction
 
 ## Citation
 
@@ -18,3 +26,14 @@
     year = {2026}
 }
 ```
+
+## Acknowledgement
+
+- [SO-ARM100](https://github.com/TheRobotStudio/SO-ARM100)
+- [LeRobot](https://github.com/huggingface/lerobot)
+- [XLeRobot](https://github.com/Vector-Wangel/XLeRobot)
+
+## Disclaimer
+
+> [!NOTE]
+> If you build, buy, or develop a Lattice Arm based on this repo, you will be fully responsible for all the physical and mental damages it does to you or others. No warranties or guarantees are made regarding safety, performance, or fitness for any particular use.

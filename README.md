@@ -2,13 +2,14 @@
 
 # Lattice Arm: Open Source Modular Detachable Low Cost Robotic Arm
 
+[![lerobot](https://img.shields.io/badge/lerobot-GitHub-black?logo=github)](https://github.com/ahadjawaid/lerobot/tree/lattice)
 [![Website](https://img.shields.io/badge/Website-latticearm.com-blue)](https://www.latticearm.com)
 [![Apache License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Twitter/X](https://img.shields.io/twitter/follow/ahadj0?style=social)](https://twitter.com/ahadj0)
 
 ![Lattice overview](assets/lattice-overview.png)
 
-Lattice Arm is an open-source, low-cost robotic manipulator designed to be modular and detachable. The hardware and documentation in this repo are meant to help makers and researchers assemble, customize, and experiment with an affordable arm without proprietary tooling.
+Lattice Arm is an open-source, low-cost robotic manipulator designed to be modular and detachable. This repo hosts the hardware design and build resources; pair it with [lerobot](https://github.com/ahadjawaid/lerobot/tree/lattice) on the `lattice` branch to teleoperate on the arm.
 
 ## News
 

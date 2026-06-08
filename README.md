@@ -2,7 +2,9 @@
 
 # Lattice Arm: Open Source Modular Detachable Low Cost Robotic Arm
 
-[Website](https://www.latticearm.com) | [License](LICENSE)
+[![Website](https://img.shields.io/badge/Website-latticearm.com-blue)](https://www.latticearm.com)
+[![Apache License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+[![Twitter/X](https://img.shields.io/twitter/follow/ahadj0?style=social)](https://twitter.com/ahadj0)
 
 ![Lattice overview](assets/lattice-overview.png)
 

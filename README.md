@@ -12,7 +12,7 @@ Lattice Arm is an open-source, low-cost robotic manipulator designed to be modul
 
 ## News
 
-- **2026-06-04** — Initial public release.
+- **2026-06-08** — Initial public release.
 
 ## BOM
 

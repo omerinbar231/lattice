@@ -52,6 +52,10 @@ The Lattice Arm reuses the SO-101 follower arm electronics and motors, so the bi
 
 See [`hardware/README.md`](hardware/README.md) for the print files, part list, and assembly.
 
+## Simulation
+
+An initial URDF model is available in [`simulation/lattice.urdf`](simulation/lattice.urdf). See [`simulation/README.md`](simulation/README.md) for validation instructions and model scope notes.
+
 ## Contribution
 
 Core contributors: **Ahad Jawaid** and **Juan Luna**.

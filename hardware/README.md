@@ -36,6 +36,7 @@ Each part folder contains a preview image (`.png`), a mesh for printing (`.stl`)
 | [`End Effectors/Screw Gripper/`](End%20Effectors/Screw%20Gripper/) | `ScrewComponent`, `GeneralMotorCasing` | Alternate screw-driven gripper |
 | [`CasingHolder/`](CasingHolder/) | `CasingHolder` | Motor casing mount |
 | [`Camera Accessories/`](Camera%20Accessories/) | `CameraAttachment`, `CameraAttachment2` | Optional egocentric camera mounts |
+| [`SO101 with Lattice Assembly/`](SO101%20with%20Lattice%20Assembly/) | `SO101_with_Lattice_Assembly` | Complete SO-101 base arm with the Lattice shoulder, connector, and gripper assembly |
 
 ## Assembly
 

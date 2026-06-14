@@ -11,9 +11,10 @@ Thanks for your interest in Lattice. Whether you've built the arm, found a bug, 
 
 These are the priorities we'd love help with:
 
-- [ ] **URDF** — create a URDF for the arm for simulation and motion planning.
-- [ ] **Assembly videos** — film and upload video instructions for building the arm.
+- [x] **URDF** — create a URDF for the arm for simulation and motion planning.
 - [ ] **Simulation** — set up a simulation environment for the arm.
+- [ ] **Camera Extension** - create a camera hardware extension that can clearly see the end effector gripper.
+- [ ] **Assembly videos** — film and upload video instructions for building the arm.
 - [ ] **Data collection** — implement data collection, or validate that the current teleoperation setup transfers correctly.
 - [ ] **Policy inference** — implement and/or validate that existing code can run policy inference to control the arm.
 - [ ] **End effectors** — design new swappable end effectors (the current ones live in [`hardware/End Effectors/`](hardware/End%20Effectors/)).

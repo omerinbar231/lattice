@@ -36,6 +36,9 @@ Each part folder contains a preview image (`.png`), a mesh for printing (`.stl`)
 | [`End Effectors/Screw Gripper/`](End%20Effectors/Screw%20Gripper/) | `ScrewComponent`, `GeneralMotorCasing` | Alternate screw-driven gripper |
 | [`CasingHolder/`](CasingHolder/) | `CasingHolder` | Motor casing mount |
 | [`Camera Accessories/`](Camera%20Accessories/) | `CameraAttachment`, `CameraAttachment2` | Optional egocentric camera mounts |
+| [`Lattice Arm/`](Lattice%20Arm/) | `lattice-arm` | Complete Lattice Arm assembly for CAD review and quick mesh viewing |
+
+The Lattice Arm assembly files include SO-101 base-arm geometry from [SO-ARM100](https://github.com/TheRobotStudio/SO-ARM100) for full-arm context.
 
 ## Assembly
 

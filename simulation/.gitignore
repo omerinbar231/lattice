@@ -1,0 +1,7 @@
+# Runtime / generated artifacts (not part of the PR payload)
+__pycache__/
+*.pyc
+screenshots/
+# validator / geometry report output (regenerate with validate_urdf.py)
+*_validation*.json
+*_geometry_report.json

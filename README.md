@@ -54,7 +54,7 @@ See [`hardware/README.md`](hardware/README.md) for the print files, part list, a
 
 ## Simulation
 
-An initial URDF model is available in [`simulation/lattice.urdf`](simulation/lattice.urdf). See [`simulation/README.md`](simulation/README.md) for validation instructions and model scope notes.
+A modular URDF model is available in [`simulation/`](simulation/). It includes a tool-less Lattice Arm base, attachable tool modules, generated `empty`, `gripper`, and `screw_gripper` variants, and an optional MuJoCo viewer for FK/IK inspection. See [`simulation/README.md`](simulation/README.md) for usage and validation.
 
 ## Contribution
 

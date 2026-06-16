@@ -1,0 +1,126 @@
+<?xml version='1.0' encoding='utf-8'?>
+<tool name="gripper" mount_link="lattice_tool_mount_link" end_link="tool0">
+  <link name="gripper_link">
+    <inertial>
+      <origin xyz="-0.004 0.0 -0.045" rpy="0 0 0" />
+      <mass value="0.035" />
+      <inertia ixx="1.0e-5" ixy="0" ixz="0" iyy="1.2e-5" iyz="0" izz="1.0e-5" />
+    </inertial>
+    <visual>
+      <origin xyz="1.5901333e-07 -1.52918261e-07 -0.04374" rpy="1.57079266 -8.40862656e-07 0.0486831732" />
+      <geometry>
+        <mesh filename="../hardware/End Effector Connector/ConnectorPartB.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="lattice_printed" />
+    </visual>
+    <collision>
+      <origin xyz="1.5901333e-07 -1.52918261e-07 -0.04374" rpy="1.57079266 -8.40862656e-07 0.0486831732" />
+      <geometry>
+        <mesh filename="../hardware/End Effector Connector/ConnectorPartB.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="1.37265251e-07 -7.5536782e-08 -0.022385" rpy="1.57079266 -8.40862656e-07 0.0486831732" />
+      <geometry>
+        <mesh filename="../hardware/End Effector Connector/ConnectorPartBcap.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="lattice_printed" />
+    </visual>
+    <collision>
+      <origin xyz="1.37265251e-07 -7.5536782e-08 -0.022385" rpy="1.57079266 -8.40862656e-07 0.0486831732" />
+      <geometry>
+        <mesh filename="../hardware/End Effector Connector/ConnectorPartBcap.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="-0.025869137 -0.00126061258 -0.0612600218" rpy="-3.66884337e-06 -8.40862657e-07 0.0486831732" />
+      <geometry>
+        <mesh filename="../hardware/End Effectors/Gripper/GripperPartA.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="lattice_printed" />
+    </visual>
+    <collision>
+      <origin xyz="-0.025869137 -0.00126061258 -0.0612600218" rpy="-3.66884337e-06 -8.40862657e-07 0.0486831732" />
+      <geometry>
+        <mesh filename="../hardware/End Effectors/Gripper/GripperPartA.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+    </collision>
+    <!-- Gripper drive servo (moved here from the base tool-mount link so it is
+         tool-specific). gripper_link is coincident with lattice_tool_mount_link. -->
+    <visual>
+      <origin xyz="-0.000216618567 0.000339636131 -0.0612600015" rpy="-1.5708 -8.40862657e-07 0.0486831732" />
+      <geometry>
+        <mesh filename="assets/so101/sts3215_03a_v1.stl" />
+      </geometry>
+      <material name="sts3215" />
+    </visual>
+    <collision>
+      <origin xyz="-0.000216618567 0.000339636131 -0.0612600015" rpy="-1.5708 -8.40862657e-07 0.0486831732" />
+      <geometry>
+        <mesh filename="assets/so101/sts3215_03a_v1.stl" />
+      </geometry>
+    </collision>
+    <!-- Tool-changer coupling cap (rigid — locked by the attached tool). -->
+    <visual>
+      <origin xyz="1.35228442e-07 -6.82896233e-08 -0.020385" rpy="1.57079566 3.70403949e-06 1.66609286" />
+      <geometry>
+        <mesh filename="../hardware/Shoulder Connector/ConnectorPartAcap.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="lattice_printed" />
+    </visual>
+    <collision>
+      <origin xyz="1.35228442e-07 -6.82896233e-08 -0.020385" rpy="1.57079566 3.70403949e-06 1.66609286" />
+      <geometry>
+        <mesh filename="../hardware/Shoulder Connector/ConnectorPartAcap.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="gripper_tool_mount_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0" />
+    <parent link="lattice_tool_mount_link" />
+    <child link="gripper_link" />
+  </joint>
+  <link name="moving_jaw_so101_v1_link">
+    <inertial>
+      <origin xyz="-0.00157495 -0.0300244 0.0192755" rpy="0 0 0" />
+      <mass value="0.012" />
+      <inertia ixx="6.61427e-06" ixy="-3.19807e-07" ixz="-5.90717e-09" iyy="1.89032e-06" iyz="-1.09945e-07" izz="5.28738e-06" />
+    </inertial>
+    <visual>
+      <origin xyz="0 2.58226232e-07 0.0445" rpy="-1.57079275 6.41442134e-06 2.07999207" />
+      <geometry>
+        <mesh filename="../hardware/End Effectors/Gripper/GripperPartb.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="lattice_printed" />
+    </visual>
+    <collision>
+      <origin xyz="0 2.58226232e-07 0.0445" rpy="-1.57079275 6.41442134e-06 2.07999207" />
+      <geometry>
+        <mesh filename="../hardware/End Effectors/Gripper/GripperPartb.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="gripper" type="revolute">
+    <origin xyz="0.0113585558 0.0196257798 -0.0612599909" rpy="1.5708 -8.93291057e-07 0.0486831732" />
+    <parent link="gripper_link" />
+    <child link="moving_jaw_so101_v1_link" />
+    <axis xyz="0 0 1" />
+    <limit effort="10" velocity="10" lower="-0.523598776" upper="1.22173048" />
+  </joint>
+  <transmission name="gripper_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="gripper">
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor6">
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <link name="tool0" />
+  <joint name="tool0_joint" type="fixed">
+    <origin xyz="0.0113585558 0.0196257798 -0.0612599909" rpy="1.5708 -8.93291057e-07 0.0486831732" />
+    <parent link="gripper_link" />
+    <child link="tool0" />
+  </joint>
+</tool>

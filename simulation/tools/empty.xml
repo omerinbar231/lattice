@@ -1,0 +1,50 @@
+<?xml version='1.0' encoding='utf-8'?>
+<tool name="empty" mount_link="lattice_tool_mount_link" end_link="tool0">
+  <!-- No end-effector tool, but the tool-changer coupling is still present: the
+       ConnectorPartAcap edge piece rolls (continuous 'tool_coupling' joint) inside
+       the ConnectorPartA cylinder on the wrist, driven by the wrist servo. tool0
+       rides on it so the tool-attach frame turns with the coupling. -->
+  <link name="tool_coupling_link">
+    <inertial>
+      <origin xyz="0 0 -0.02" rpy="0 0 0" />
+      <mass value="0.02" />
+      <inertia ixx="3.0e-6" ixy="0" ixz="0" iyy="3.0e-6" iyz="0" izz="3.0e-6" />
+    </inertial>
+    <visual>
+      <origin xyz="1.35228442e-07 -6.82896233e-08 -0.020385" rpy="1.57079566 3.70403949e-06 1.66609286" />
+      <geometry>
+        <mesh filename="../hardware/Shoulder Connector/ConnectorPartAcap.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="lattice_printed" />
+    </visual>
+    <collision>
+      <origin xyz="1.35228442e-07 -6.82896233e-08 -0.020385" rpy="1.57079566 3.70403949e-06 1.66609286" />
+      <geometry>
+        <mesh filename="../hardware/Shoulder Connector/ConnectorPartAcap.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="tool_coupling" type="continuous">
+    <origin xyz="0 0 0" rpy="0 0 0" />
+    <parent link="lattice_tool_mount_link" />
+    <child link="tool_coupling_link" />
+    <axis xyz="0 0 1" />
+    <limit effort="10" velocity="10" />
+  </joint>
+  <transmission name="tool_coupling_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="tool_coupling">
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor6">
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <link name="tool0" />
+  <joint name="tool0_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0" />
+    <parent link="tool_coupling_link" />
+    <child link="tool0" />
+  </joint>
+</tool>

@@ -19,19 +19,28 @@ from simlib import as_list, choose_end_link, find_chain_joints, forward_kinemati
 
 
 DEFAULT_URDF = SCRIPT_DIR / "lattice.urdf"
-DEFAULT_EXPECTED_JOINTS = [
+DEFAULT_ARM_JOINTS = [
     "shoulder_pan",
     "shoulder_lift",
     "elbow_flex",
     "wrist_flex",
     "wrist_roll",
-    "gripper",
 ]
+TOOL_JOINTS = {
+    "empty": ["tool_coupling"],
+    "gripper": ["gripper"],
+    "screw_gripper": ["screw_gripper_spin"],
+}
+DEFAULT_EXPECTED_JOINTS = DEFAULT_ARM_JOINTS + TOOL_JOINTS["gripper"]
 
 
 def duplicates(values: Sequence[str]) -> List[str]:
     counts = Counter(values)
     return sorted([value for value, count in counts.items() if count > 1])
+
+
+def expected_joints_for_tool(tool_name: str) -> List[str]:
+    return DEFAULT_ARM_JOINTS + TOOL_JOINTS[tool_name]
 
 
 def run_pybullet_direct_check(urdf_path: Path) -> Dict[str, Any]:
@@ -154,6 +163,7 @@ def main() -> int:
     parser.add_argument("--urdf", type=Path, default=DEFAULT_URDF, help="URDF to validate")
     parser.add_argument("--end-link", default="gripper_frame_link", help="End link used for FK smoke testing")
     parser.add_argument("--expected-joint", action="append", dest="expected_joints", help="Expected active joint name")
+    parser.add_argument("--expected-tool", choices=sorted(TOOL_JOINTS), help="Expected tool joint set")
     parser.add_argument("--check-pybullet", action="store_true", help="Also try loading the URDF with PyBullet if installed")
     parser.add_argument(
         "--json-output",
@@ -163,7 +173,12 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    expected_joints = args.expected_joints or DEFAULT_EXPECTED_JOINTS
+    if args.expected_joints:
+        expected_joints = args.expected_joints
+    elif args.expected_tool:
+        expected_joints = expected_joints_for_tool(args.expected_tool)
+    else:
+        expected_joints = DEFAULT_EXPECTED_JOINTS
     report = validate(args.urdf, expected_joints, args.end_link, args.check_pybullet)
     args.json_output.parent.mkdir(parents=True, exist_ok=True)
     args.json_output.write_text(json.dumps(report, indent=2), encoding="utf-8")

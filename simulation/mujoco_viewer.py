@@ -1,19 +1,20 @@
 """Lattice Arm MuJoCo workbench.
 
-A single-window, embedded MuJoCo viewer for inspecting the Lattice Arm. The 3D scene is rendered offscreen with
+A single-window, embedded MuJoCo viewer for inspecting the Lattice Arm with
+interchangeable end-of-arm tools. The 3D scene is rendered offscreen with
 ``mujoco.Renderer`` and shown directly inside a dark Tkinter dashboard, so there
-is exactly one window and no stray default MuJoCo panels. Controls:
-forward-kinematics joint sliders, Cartesian jog buttons
+is exactly one window and no stray default MuJoCo panels. Controls: an
+end-effector selector, forward-kinematics joint sliders, Cartesian jog buttons
 driven by damped-least-squares IK, pose presets, a live tool0 readout, and a
 screenshot button.
 
 Headless modes (no display required) share the same render core:
 
     python mujoco_viewer.py                      # interactive workbench
-    python mujoco_viewer.py --urdf path/to.urdf   # load a specific URDF
+    python mujoco_viewer.py --tool empty
     python mujoco_viewer.py --shot arm.png        # one offscreen frame
     python mujoco_viewer.py --contact-sheet cs.png  # multi-angle sheet
-    python mujoco_viewer.py --direct              # load + IK + asset self-check
+    python mujoco_viewer.py --direct --all-tools  # load + IK + asset self-check
     python mujoco_viewer.py --passive             # native MuJoCo window (fallback)
 """
 from __future__ import annotations
@@ -29,6 +30,7 @@ from typing import Dict, List, Optional, Sequence, Tuple
 SCRIPT_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(SCRIPT_DIR))
 
+from generate_tool_urdf import available_tools, build_urdf
 from simlib import (
     Joint,
     UrdfModel,
@@ -42,7 +44,7 @@ from simlib import (
 )
 
 ARM_JOINT_ORDER = ["shoulder_pan", "shoulder_lift", "elbow_flex", "wrist_flex", "wrist_roll"]
-DEFAULT_URDF = SCRIPT_DIR / "lattice.urdf"
+DEFAULT_TOOL = "gripper"
 Vec3 = Tuple[float, float, float]
 
 # Dark "instrument workbench" palette (see DESIGN.md).
@@ -83,8 +85,9 @@ def require_mujoco():
 
 @dataclass
 class Variant:
-    """A loaded arm: the URDF path plus a parsed simlib model."""
+    """A tool-specific build of the arm: the generated URDF plus a simlib model."""
 
+    tool: str
     urdf_path: Path
     kinematic_model: UrdfModel
     end_link: str
@@ -92,13 +95,13 @@ class Variant:
     arm_joints: List[Joint]
 
 
-def load_variant(urdf_path: Path = DEFAULT_URDF) -> Variant:
-    urdf_path = Path(urdf_path)
+def load_variant(tool_name: str) -> Variant:
+    urdf_path = build_urdf(tool_name)
     model = load_urdf(urdf_path)
     end_link = "tool0" if "tool0" in model.link_names else model.leaf_links[-1]
     active = ordered_active_joints(model)
     arm = [j for j in ordered_active_joints(model, ARM_JOINT_ORDER) if j.name in ARM_JOINT_ORDER]
-    return Variant(urdf_path, model, end_link, active, arm)
+    return Variant(tool_name, urdf_path, model, end_link, active, arm)
 
 
 def build_view_model(mujoco, urdf_path: Path, offw: int, offh: int, dressed: bool = True,
@@ -441,32 +444,36 @@ def zero_pose(variant: Variant) -> Dict[str, float]:
 # --------------------------------------------------------------------------- #
 # Headless commands                                                           #
 # --------------------------------------------------------------------------- #
-def cmd_direct(mujoco, np, urdf: Path) -> int:
-    """Headless self-check: compile the URDF, run a jog-IK probe, and flag any
-    degenerate (collapsed-scale) meshes. Needs no display or GL context."""
-    variant = load_variant(urdf)
-    model = mujoco.MjModel.from_xml_path(str(variant.urdf_path))
-    data = mujoco.MjData(model)
-    mujoco.mj_forward(model, data)
-    start = zero_pose(variant)
-    current = current_end_position(variant.kinematic_model, start, variant.end_link)
-    target = (current[0] + 0.02, current[1], current[2])
-    result = solve_ik(variant.kinematic_model, variant.arm_joints, start, variant.end_link, target)
-    bad = degenerate_meshes(mujoco, np, model)
-    ok = result.converged and not bad
-    print(
-        f"[{'OK' if ok else 'WARN'}] {variant.urdf_path.name}  "
-        f"{model.njnt} joints, {model.ngeom} geoms, "
-        f"IK residual {result.residual * 1000:.2f} mm in {result.iterations} it"
-    )
-    for name, extent in bad:
-        print(f"    ! degenerate mesh '{name}' extent {extent * 1000:.3f} mm (scale/units bug?)")
-    return 0 if ok else 1
+def cmd_direct(mujoco, np, tools: Sequence[str]) -> int:
+    """Headless self-check: compile each variant, run a jog-IK probe, and flag
+    any degenerate (collapsed-scale) meshes. Needs no display or GL context."""
+    status = 0
+    for tool_name in tools:
+        variant = load_variant(tool_name)
+        model = mujoco.MjModel.from_xml_path(str(variant.urdf_path))
+        data = mujoco.MjData(model)
+        mujoco.mj_forward(model, data)
+        start = zero_pose(variant)
+        current = current_end_position(variant.kinematic_model, start, variant.end_link)
+        target = (current[0] + 0.02, current[1], current[2])
+        result = solve_ik(variant.kinematic_model, variant.arm_joints, start, variant.end_link, target)
+        bad = degenerate_meshes(mujoco, np, model)
+        flag = "OK" if result.converged and not bad else "WARN"
+        if not result.converged or bad:
+            status = 1
+        print(
+            f"[{flag}] {tool_name}: {variant.urdf_path.name}  "
+            f"{model.njnt} joints, {model.ngeom} geoms, "
+            f"IK residual {result.residual * 1000:.2f} mm in {result.iterations} it"
+        )
+        for name, extent in bad:
+            print(f"        ! degenerate mesh '{name}' extent {extent * 1000:.3f} mm (scale/units bug?)")
+    return status
 
 
-def cmd_shot(mujoco, np, urdf: Path, out: Path, res: Tuple[int, int],
+def cmd_shot(mujoco, np, tool: str, out: Path, res: Tuple[int, int],
              az: Optional[float], el: Optional[float]) -> int:
-    variant = load_variant(urdf)
+    variant = load_variant(tool)
     scene = Scene(mujoco, np, variant, res[0], res[1], shadows=True)
     try:
         scene.apply(zero_pose(variant))
@@ -479,14 +486,14 @@ def cmd_shot(mujoco, np, urdf: Path, out: Path, res: Tuple[int, int],
     finally:
         scene.close()
     save_png(img, out)
-    print(f"wrote {out}  ({img.shape[1]}x{img.shape[0]})")
+    print(f"wrote {out}  ({img.shape[1]}x{img.shape[0]}, tool={tool})")
     return 0
 
 
-def cmd_contact_sheet(mujoco, np, urdf: Path, out: Path, res: Tuple[int, int]) -> int:
+def cmd_contact_sheet(mujoco, np, tool: str, out: Path, res: Tuple[int, int]) -> int:
     from PIL import Image
 
-    variant = load_variant(urdf)
+    variant = load_variant(tool)
     values = zero_pose(variant)
     tile_w, tile_h = res
     angles = [(120, -18), (210, -18), (300, -18), (75, -55)]
@@ -506,16 +513,16 @@ def cmd_contact_sheet(mujoco, np, urdf: Path, out: Path, res: Tuple[int, int]) -
         sheet.paste(Image.fromarray(tile), ((idx % cols) * tile_w, (idx // cols) * tile_h))
     out.parent.mkdir(parents=True, exist_ok=True)
     sheet.save(out)
-    print(f"wrote {out}  (contact sheet {cols * tile_w}x{rows * tile_h})")
+    print(f"wrote {out}  (contact sheet {cols * tile_w}x{rows * tile_h}, tool={tool})")
     return 0
 
 
-def run_passive(mujoco, np, urdf: Path) -> int:
+def run_passive(mujoco, np, tool: str) -> int:
     """Native MuJoCo window playing a slow wave demo. Fallback that needs no
     Pillow/ImageTk; also handy for users who prefer MuJoCo's own navigation."""
     import mujoco.viewer
 
-    variant = load_variant(urdf)
+    variant = load_variant(tool)
     model = build_view_model(mujoco, variant.urdf_path, 128, 128)
     data = mujoco.MjData(model)
     qadr = joint_qpos_map(mujoco, model, variant.active_joints)
@@ -614,7 +621,7 @@ class LatticeWorkbench:
     JOG_AXES = (("X", 0), ("Y", 1), ("Z", 2))
     AXIS_COLORS = {"X": "#ff5a4d", "Y": "#46d65f", "Z": "#5b8dff"}  # match MuJoCo's RGB triad
 
-    def __init__(self, mujoco, np, urdf: Path, jog_step: float):
+    def __init__(self, mujoco, np, initial_tool: str, jog_step: float):
         import tkinter as tk
         from tkinter import ttk
         from PIL import Image, ImageTk
@@ -643,6 +650,7 @@ class LatticeWorkbench:
         self.joint_values: Dict[str, float] = {}
         self.sliders: Dict[str, JointSlider] = {}
 
+        self.tool_var = tk.StringVar(value=initial_tool)
         self.step_var = tk.DoubleVar(value=jog_step)
         self.status_var = tk.StringVar(value="Loading…")
         self.meta_var = tk.StringVar(value="")
@@ -661,7 +669,7 @@ class LatticeWorkbench:
 
         self._configure_style()
         self._build_layout()
-        self.load_tool(urdf)
+        self.load_tool(initial_tool)
 
         self.root.protocol("WM_DELETE_WINDOW", self.close)
         self.root.bind("<F11>", self._toggle_fullscreen)
@@ -759,6 +767,7 @@ class LatticeWorkbench:
         dock = ttk.Frame(body, style="Panel.TFrame", padding=12, width=self.DOCK_W)
         dock.grid(row=0, column=1, sticky="ns", padx=(12, 0))
         dock.grid_propagate(False)
+        self._build_tool_row(dock)
         self._build_jog(dock)
         self._build_presets(dock)
         ttk.Label(dock, textvariable=self.tcp_var, style="Panel.TLabel",
@@ -766,6 +775,16 @@ class LatticeWorkbench:
         ttk.Label(dock, text="FORWARD KINEMATICS", style="Sec.TLabel").pack(anchor="w", pady=(8, 4))
         self.slider_frame = ttk.Frame(dock, style="Panel.TFrame")
         self.slider_frame.pack(fill="both", expand=True)
+
+    def _build_tool_row(self, dock) -> None:
+        ttk = self.ttk
+        ttk.Label(dock, text="END EFFECTOR", style="Sec.TLabel").pack(anchor="w")
+        row = ttk.Frame(dock, style="Panel.TFrame")
+        row.pack(fill="x", pady=(4, 14))
+        combo = ttk.Combobox(row, textvariable=self.tool_var, values=available_tools(), state="readonly",
+                             width=22, font=("Segoe UI", 12))
+        combo.pack(side="left", ipady=3)
+        combo.bind("<<ComboboxSelected>>", lambda _e: self.load_tool(self.tool_var.get()))
 
     def _build_jog(self, dock) -> None:
         tk, ttk = self.tk, self.ttk
@@ -801,36 +820,53 @@ class LatticeWorkbench:
         ttk.Button(row2, text="Screenshot", command=self.screenshot).pack(side="left", expand=True, fill="x", padx=3)
 
     # -- tool loading ------------------------------------------------------
-    def load_tool(self, urdf) -> None:
+    def load_tool(self, tool_name: str) -> None:
         self._stop_wave()
-        reframe = self.variant is None   # only auto-frame the camera on first load
+        prev_tool = self.variant.tool if self.variant is not None else None
+        reframe = prev_tool is None   # only auto-frame the camera on first load
+        # Close the OLD scene before building the new one. Keeping two live GL
+        # contexts and then freeing one blanks every subsequent render on
+        # Windows, which is what broke tool switching previously.
         if self.scene is not None:
             self.scene.close()
             self.scene = None
         try:
-            self._activate(urdf, reframe)
+            self._activate(tool_name, reframe)
         except Exception as exc:  # noqa: BLE001 - surfaced to the status bar
-            self._set_status(f"could not load '{urdf}': {exc}", THEME["danger"])
+            recovered = False
+            if prev_tool and prev_tool != tool_name:
+                try:
+                    self._activate(prev_tool, reframe=False)
+                    self.tool_var.set(prev_tool)
+                    recovered = True
+                except Exception:
+                    pass
+            note = " (kept previous tool)" if recovered else ""
+            self._set_status(f"could not load tool '{tool_name}': {exc}{note}", THEME["danger"])
 
-    def _activate(self, urdf, reframe: bool) -> None:
-        variant = load_variant(urdf)
+    def _activate(self, tool_name: str, reframe: bool) -> None:
+        variant = load_variant(tool_name)
         scene = Scene(self.mujoco, self.np, variant, self._view_w, self._view_h,
                       framebuffer=(self._fb_w, self._fb_h))
+        previous = self.joint_values
         self.variant, self.scene = variant, scene
-        self.joint_values = {j.name: clamp_joint(j, 0.0) for j in variant.active_joints}
+        # Carry the pose across tool changes so the arm does not jump; joints that
+        # only exist on the new tool (e.g. the gripper) start at zero.
+        self.joint_values = {j.name: previous.get(j.name, clamp_joint(j, 0.0)) for j in variant.active_joints}
         scene.apply(self.joint_values)
         if reframe or self.camera is None:
             self.camera = frame_camera(self.mujoco, self.np, scene.model, scene.data)
         self._build_sliders()
         self._refresh_readouts()
         self._dirty = True
+        self.meta_var.set(f"{len(variant.active_joints)} joints · {variant.urdf_path.name}")
         bad = scene.warnings()
         if bad:
             names = ", ".join(n for n, _ in bad)
-            self._set_status(f"loaded {variant.urdf_path.name} — WARNING: degenerate meshes ({names})", THEME["danger"])
+            self._set_status(f"{tool_name} loaded — WARNING: degenerate meshes ({names})", THEME["danger"])
         else:
-            self._set_status(f"loaded {variant.urdf_path.name} — drag to orbit · wheel to zoom · "
-                             f"right-drag to pan · F11 fullscreen", THEME["ok"])
+            self._set_status(f"{tool_name} loaded — drag to orbit · wheel to zoom · right-drag to pan · F11 fullscreen",
+                             THEME["ok"])
 
     def _build_sliders(self) -> None:
         for child in self.slider_frame.winfo_children():
@@ -912,7 +948,7 @@ class LatticeWorkbench:
             return
         # Grab from the live scene's renderer; spinning up a second GL context
         # while the viewport's context is current can blank the embedded view.
-        out = SCRIPT_DIR / "screenshots" / f"lattice_{int(time.time())}.png"
+        out = SCRIPT_DIR / "screenshots" / f"lattice_{self.variant.tool}_{int(time.time())}.png"
         save_png(self.scene.render(self.camera), out)
         self._set_status(f"saved {out.relative_to(SCRIPT_DIR)}", THEME["accent"])
 
@@ -1049,10 +1085,11 @@ def parse_res(text: str) -> Tuple[int, int]:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Embedded MuJoCo viewer for the Lattice Arm.")
-    parser.add_argument("--urdf", type=Path, default=DEFAULT_URDF, help="URDF to load")
+    parser = argparse.ArgumentParser(description="Embedded MuJoCo workbench for Lattice Arm tool variants.")
+    parser.add_argument("--tool", default=DEFAULT_TOOL, choices=available_tools(), help="Initial tool module")
     parser.add_argument("--jog-step", type=float, default=0.005, help="IK jog step size in metres")
     parser.add_argument("--direct", action="store_true", help="Headless load + IK + asset self-check (no GUI)")
+    parser.add_argument("--all-tools", action="store_true", help="In --direct mode, check every tool")
     parser.add_argument("--shot", type=Path, help="Render one offscreen PNG and exit")
     parser.add_argument("--contact-sheet", type=Path, help="Render a multi-angle PNG sheet and exit")
     parser.add_argument("--res", type=parse_res, default=(1280, 960),
@@ -1066,24 +1103,27 @@ def main() -> int:
                                    ("--contact-sheet", bool(args.contact_sheet)), ("--passive", args.passive)) if on]
     if len(modes) > 1:
         parser.error(f"choose only one mode at a time (got {', '.join(modes)})")
+    if args.all_tools and not args.direct:
+        parser.error("--all-tools only applies with --direct")
 
     try:
         mujoco, np = require_mujoco()
         if args.direct:
-            return cmd_direct(mujoco, np, args.urdf)
+            tools = available_tools() if args.all_tools else [args.tool]
+            return cmd_direct(mujoco, np, tools)
         if args.shot:
-            return cmd_shot(mujoco, np, args.urdf, args.shot, args.res, args.az, args.el)
+            return cmd_shot(mujoco, np, args.tool, args.shot, args.res, args.az, args.el)
         if args.contact_sheet:
-            return cmd_contact_sheet(mujoco, np, args.urdf, args.contact_sheet, args.res)
+            return cmd_contact_sheet(mujoco, np, args.tool, args.contact_sheet, args.res)
         if args.passive:
-            return run_passive(mujoco, np, args.urdf)
+            return run_passive(mujoco, np, args.tool)
         try:
             from PIL import ImageTk  # noqa: F401
         except Exception:
             print("Pillow's ImageTk is unavailable; falling back to the native MuJoCo window (--passive).",
                   file=sys.stderr)
-            return run_passive(mujoco, np, args.urdf)
-        LatticeWorkbench(mujoco, np, args.urdf, args.jog_step).run()
+            return run_passive(mujoco, np, args.tool)
+        LatticeWorkbench(mujoco, np, args.tool, args.jog_step).run()
         return 0
     except (RuntimeError, ValueError, OSError) as exc:
         print(f"error: {exc}", file=sys.stderr)

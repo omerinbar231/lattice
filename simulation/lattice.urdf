@@ -87,7 +87,7 @@
         
         
         
-        <mesh filename="assets/so101/base_motor_holder_so101_v1.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/so101/base_motor_holder_so101_v1.stl"/>
         
         
       
@@ -122,7 +122,7 @@
         
         
         
-        <mesh filename="assets/so101/base_motor_holder_so101_v1.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/so101/base_motor_holder_so101_v1.stl"/>
         
         
       
@@ -153,7 +153,7 @@
         
         
         
-        <mesh filename="assets/so101/base_so101_v2.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/so101/base_so101_v2.stl"/>
         
         
       
@@ -188,7 +188,7 @@
         
         
         
-        <mesh filename="assets/so101/base_so101_v2.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/so101/base_so101_v2.stl"/>
         
         
       
@@ -285,7 +285,7 @@
         
         
         
-        <mesh filename="assets/so101/waveshare_mounting_plate_so101_v2.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/so101/waveshare_mounting_plate_so101_v2.stl"/>
         
         
       
@@ -320,7 +320,7 @@
         
         
         
-        <mesh filename="assets/so101/waveshare_mounting_plate_so101_v2.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/so101/waveshare_mounting_plate_so101_v2.stl"/>
         
         
       
@@ -454,7 +454,7 @@
         
         
         
-        <mesh filename="assets/so101/motor_holder_so101_base_v1.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/so101/motor_holder_so101_base_v1.stl"/>
         
         
       
@@ -489,7 +489,7 @@
         
         
         
-        <mesh filename="assets/so101/motor_holder_so101_base_v1.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/so101/motor_holder_so101_base_v1.stl"/>
         
         
       
@@ -520,7 +520,7 @@
         
         
         
-        <mesh filename="assets/so101/rotation_pitch_so101_v1.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/so101/rotation_pitch_so101_v1.stl"/>
         
         
       
@@ -555,7 +555,7 @@
         
         
         
-        <mesh filename="assets/so101/rotation_pitch_so101_v1.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/so101/rotation_pitch_so101_v1.stl"/>
         
         
       
@@ -689,7 +689,7 @@
         
         
         
-        <mesh filename="assets/so101/upper_arm_so101_v1.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/so101/upper_arm_so101_v1.stl"/>
         
         
       
@@ -724,7 +724,7 @@
         
         
         
-        <mesh filename="assets/so101/upper_arm_so101_v1.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/so101/upper_arm_so101_v1.stl"/>
         
         
       
@@ -792,7 +792,7 @@
         
         
         
-        <mesh filename="assets/so101/under_arm_so101_v1.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/so101/under_arm_so101_v1.stl"/>
         
         
       
@@ -827,7 +827,7 @@
         
         
         
-        <mesh filename="assets/so101/under_arm_so101_v1.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/so101/under_arm_so101_v1.stl"/>
         
         
       
@@ -858,7 +858,7 @@
         
         
         
-        <mesh filename="assets/so101/motor_holder_so101_wrist_v1.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/so101/motor_holder_so101_wrist_v1.stl"/>
         
         
       
@@ -893,7 +893,7 @@
         
         
         
-        <mesh filename="assets/so101/motor_holder_so101_wrist_v1.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/so101/motor_holder_so101_wrist_v1.stl"/>
         
         
       

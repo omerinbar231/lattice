@@ -1,0 +1,4 @@
+mujoco>=3.2.0
+# Pillow (incl. ImageTk) drives the embedded viewport and PNG export
+# (--shot / --contact-sheet / Screenshot). numpy ships with mujoco.
+pillow>=10.0

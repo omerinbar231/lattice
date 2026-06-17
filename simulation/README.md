@@ -85,6 +85,12 @@ CPU, so its frame rate is bound by that read-back, not the render resolution. On
 integrated GPUs interaction is ~10-15 fps; for smooth (60 fps) navigation use
 `--passive`, which renders straight to a GPU window.
 
+> On **macOS**, MuJoCo's native viewer must run on the main thread, so launch
+> `--passive` with `mjpython` (shipped with the `mujoco` wheel):
+> `mjpython simulation/mujoco_viewer.py --passive`. The embedded viewer and the
+> headless modes run under plain `python`. Over remote desktop / VNC the embedded
+> (offscreen) viewer is usually the more reliable choice.
+
 ## Scope
 
 This is an initial visual/kinematic description, not a final dynamics model. Inertial properties are approximate or inherited from the SO-101 reference where practical, and `tool0` should be refined after a measured TCP is selected for each end effector.
